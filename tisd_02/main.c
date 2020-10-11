@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <locale.h>
 
 #define MAX 100
 #define SEP ",.\n"
@@ -145,109 +146,102 @@ int count_fields(const char *str)
     
     return n;
 }
-int split_fields(char *str, char **fields)
-{
-    int len = strlen(str);
-    int j = 0;
-    
-    for (int i = 0; i < len; i++)
-    {
-        if (strchr(SEP, str[i]))
-            str[i] = 0;
-        else if (i == 0 || str[i - 1] == 0)
-        {
-            fields[j] = str + i;
-            j++;
-        }
-    }
-    
-    return j;
-}
 
 // Ввод/вывод файловый
 void fscan_list(void)
 {
+    setlocale (LC_CTYPE, "Russian");
     char name[30];
-
+    int k = 0;
+    int j = 0;
+    int kol = 0;
+    char str[100];
+    char *estr;
+    char fields[1000][1000];
+    int slot = 0;
+    int flag = 1;
+    int i = 0;
+    int cn = 0;
+    char buf[10000];
     printf("Введите название исходного файла, с расширением: ");
     scanf("%s", name);
-
-    FILE *f_inp;
-
-    f_inp = fopen(name, "r");
-
+    FILE *f_inp = fopen(name, "r");
     if (f_inp == NULL)
     {
         printf("Не удалось открыть файл\n\n");
         return;
     }
-
-    char str[100];
-    char *estr;
-    int slot = 0;
-    int flag = 0;
-
-    while (1)
+    while (flag) // здесь утечка
     {
-        estr = fgets(str, sizeof(str), f_inp);
+        estr = fgets(str, sizeof(str) - 1, f_inp);
         if (estr == NULL)
         {
-            if (feof(f_inp) != 0)
-            {
-                flag = 1;
-                break;
-            }
-            else
-            {
-                printf("Ошибка при чтении файла\n");
-                break;
-            }
-        }
-
-        if (slot == MAX)
             break;
-
-        int cn = count_fields(str);
-
+        }
+        if (*estr == EOF)
+        {
+            flag = 0;
+        }
+        
+        if (slot == MAX - 1)
+            flag = 0;
+        //flag = 0;
+        cn = count_fields(str);
         if (cn)
         {
-            char fields[2*MAX];
-            char *p = fields;
-
-            if (1)
+            if (cn)
             {
-                split_fields(str, &p);
-
-	            for (int i = 0; i < cn; i++)
+                i = 0;
+                j = 0;
+                k = 0;
+                kol = 0;
+                for (i = 0; i < strlen(str); i++)
+                {   
+                    if (str[i] != ',' && str[i] != '.' && str[i] != '\n')
+                    {
+                        buf[k] = str[i];
+                        k += 1;        
+                    }
+                    else
+                    {
+                        buf[k] = '\0';
+                        strcpy(fields[kol],buf);
+                        kol += 1;
+                        buf[0] = '\0';
+                        k = 0;
+                    }
+                }
+                i = 0;
+	            for (i = 0; i < cn; i++)
 	            {
 	                if (i == 0)
                     {
-	                    strcpy(list[slot].surname, &fields[i]);
+	                    strcpy(list[slot].surname, fields[i]);
                         printf("%s\n",list[slot].surname);
                     }
 	                else if (i == 1)
                     {
-	                    strcpy(list[slot].name, &fields[i]);
+	                    strcpy(list[slot].name, fields[i]);
                         printf("%s\n",list[slot].name);
                     }
 	                else if (i == 2)
                     {
-	                    list[slot].phone = atoi(&fields[i]);
+	                    list[slot].phone = atoi(fields[i]);
                         printf("%d\n",list[slot].phone);
                     }
 	                else if (i == 3)
                     {
-	                    strcpy(list[slot].adres, &fields[i]);
+	                    strcpy(list[slot].adres, fields[i]);
                         printf("%s\n",list[slot].adres);
                     }
 	                else if (i == 4)
 	                {
-	                    if (strcmp("personal", &fields[i]) == 0)
+	                    if (strcmp("personal", fields[i]) == 0)
                         {
 	                        list[slot].st = personal;
                             printf("%d\n",list[slot].st);
                         }
-	                    else if (strcmp("work", &fields[i]) == 0)
+	                    else if (strcmp("work", fields[i]) == 0)
                         {
 	                        list[slot].st = work;
                             printf("%d\n",list[slot].st);
@@ -260,13 +254,13 @@ void fscan_list(void)
 	                    {
 	                    case 0:
 
-	                        list[slot].type.dofb.d = atoi(&fields[i]);
+	                        list[slot].type.dofb.d = atoi(fields[i]);
                             printf("%d\n",list[slot].type.dofb.d);
 
 	                        break;
 
 	                    case 1:
-	                    	strcpy(list[slot].type.ofc.position, &fields[i]);
+	                    	strcpy(list[slot].type.ofc.position, fields[i]);
                             printf("%s\n",list[slot].type.ofc.position);
 
 	                        break;
@@ -278,13 +272,13 @@ void fscan_list(void)
 	                    switch (list[slot].st)
 	                    {
 	                    case 0:
-	                    	list[slot].type.dofb.m = atoi(&fields[i]);
+	                    	list[slot].type.dofb.m = atoi(fields[i]);
                             printf("%d\n",list[slot].type.dofb.m);
 
 	                        break;
 
 	                    case 1:
-	                        strcpy(list[slot].type.ofc.organization, &fields[i]);
+	                        strcpy(list[slot].type.ofc.organization, fields[i]);
                             printf("%s\n",list[slot].type.ofc.organization);
 
 	                        break;
@@ -292,7 +286,7 @@ void fscan_list(void)
 	                }
 	                else if (i == 7)
                     {
-	                    list[slot].type.dofb.y = atoi(&fields[i]);
+	                    list[slot].type.dofb.y = atoi(fields[i]);
                         printf("%d\n",list[slot].type.dofb.y);
                     }
 	            }
@@ -843,7 +837,8 @@ int menu_select(void)
 // мейн
 int main(void)
 {
-    setbuf(stdout, NULL);
+    setlocale (LC_CTYPE, "Russian");
+    //setbuf(stdout, NULL);
     
     char choice;
 
