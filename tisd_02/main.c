@@ -18,16 +18,16 @@ struct data
 
 struct office
 {
-	char position[20];
-	char organization[20];
+	char position[50];
+	char organization[50];
 };
 
 typedef struct
 {
-	char surname[30];
-	char name[20];
+	char surname[70];
+	char name[50];
 	int phone;
-	char adres[40];
+	char adres[90];
 
 	enum 
 	{
@@ -46,11 +46,11 @@ typedef struct
 typedef struct
 {
     int index_src;
-    char surname[30];
+    char surname[60];
 } key_listp;
 
-listp list[MAX], list_q[MAX], list_m[MAX];
-key_listp list_surname[MAX], list_surname_q[MAX], list_surname_m[MAX];
+listp list[2*MAX], list_q[2*MAX], list_m[2*MAX];
+key_listp list_surname[2*MAX], list_surname_q[2*MAX], list_surname_m[2*MAX];
 
 
 
@@ -151,11 +151,11 @@ int count_fields(const char *str)
 void fscan_list(void)
 {
     setlocale (LC_CTYPE, "Russian");
-    char name[30];
+    char name[70];
     int k = 0;
     int j = 0;
     int kol = 0;
-    char str[100];
+    char str[300];
     char *estr;
     char fields[1000][1000];
     int slot = 0;
@@ -309,7 +309,7 @@ void fscan_list(void)
 
 void fprint_list(void)
 {
-    char name[30];
+    char name[70];
 
     printf("Введите название результирующего файла, с расширением: ");
     scanf("%s", name);
@@ -792,7 +792,7 @@ void check_sort(void)
         printf("t_1 = %llu\n", t_1);
         printf("t_2 = %llu\n", t_2);
 
-        printf("Быстрая сортировка на %llu%% быстрее, чем !!!шейкерная\n", (100 - 100 * t_2 / t_1));
+        printf("Быстрая сортировка на %llu%% быстрее, чем шейкерная\n", (100 - 100 * t_2 / t_1));
 
         printf("\n");
     }
@@ -816,7 +816,7 @@ int menu_select(void)
     printf("8. Отсортировать таблицу ключей по фамилии\n");
     printf("9. Результат сравнения эффективности обработки данных\n");
     printf("10. Результат сравнения сортировок\n");
-    printf("11. Вывести список абонентов, у которых ДР в ближайшую неделю\n");
+    printf("11. Вывести список абонентов, у которых день рождения в ближайшую неделю\n");
     printf("\n0. Выход\n");
 
     do {
