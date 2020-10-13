@@ -5,8 +5,6 @@
 *.gcno
 *.DS_Store
 *.vscode
-
-
-
-
-
+/tisd_02/main
+/tisd_02/main.dSYM
+/tisd_01/~$report.docx
