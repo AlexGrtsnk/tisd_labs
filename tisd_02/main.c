@@ -4,9 +4,9 @@
 #include <time.h>
 #include <locale.h>
 
-#define MAX 100
+#define MAX 10000
 #define SEP ",.\n"
-#define N 100
+#define N 10000
 
 // Объявление 
 struct data
@@ -683,7 +683,7 @@ void spec(void)
     	for (int j = 0; j < 8; j++)
         if (list[i].surname[0] && list[i].st == personal && list[i].type.dofb.d == day[j] && list[i].type.dofb.m == month[j])
         {
-            printf("%s\n", list[i].surname);
+            printf("%s %d.%d.%d\n", list[i].surname, list[i].type.dofb.d, list[i].type.dofb.m, list[i].type.dofb.y);
             flag = 1;
         }
 
