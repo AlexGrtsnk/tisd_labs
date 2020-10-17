@@ -1,0 +1,10 @@
+*.exe
+*.o
+*.gcda
+*.c.gcov
+*.gcno
+*.DS_Store
+*.vscode
+/tisd_03/main
+/tisd_03/main.dSYM
+*.txt
