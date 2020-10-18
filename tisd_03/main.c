@@ -44,18 +44,17 @@ Colored printf ouptut.
 
 #define type_spec "%d"
 #define out_spec "%5d "
-typedef int type_t;
 
 typedef struct
 {
-    type_t **matrix;
+    int **matrix;
     int rows;
     int columns;
 } matrix_t;
 
 typedef struct
 {
-    type_t *elems;
+    int *elems;
     int *row_entry;
     int *col_entry;
     int elems_amount;
@@ -121,7 +120,7 @@ int sdots(const sparse_t sparse_a, const sparse_t sparse_b, int *const dots)
 {
     for (int col = 0; col < sparse_a.cols_amount; ++col)
     {
-        type_t *a_arr, *b_arr;
+        int *a_arr, *b_arr;
         int a_ind = 0, b_ind = 0;
         int cur_a, cur_b;
 
@@ -138,8 +137,8 @@ int sdots(const sparse_t sparse_a, const sparse_t sparse_b, int *const dots)
 
         int a_column = cur_a - *(sparse_a.col_entry + col);
         int b_column = cur_b - *(sparse_b.col_entry + col);
-        a_arr = (type_t *)calloc(a_column, sizeof(type_t));
-        b_arr = (type_t *)calloc(b_column, sizeof(type_t));
+        a_arr = (int *)calloc(a_column, sizeof(int));
+        b_arr = (int *)calloc(b_column, sizeof(int));
 
         for (int a_col = *(sparse_a.col_entry + col); a_col < cur_a; ++a_col)
         {
@@ -185,14 +184,14 @@ int sdots(const sparse_t sparse_a, const sparse_t sparse_b, int *const dots)
 Find minimum of two arrays.
 
 Input data:
-* type_t *a_arr, const int a_len, type_t *b_arr, const int b_len - arrays and 
+* int *a_arr, const int a_len, int *b_arr, const int b_len - arrays and 
 their properties.
 
 Output data:
 * Return sign: A_LESS (if a_arr less than b_arr), B_LESS (if b_arr less than 
 a_arr) or EQUAL (otherwise).
 */
-int arrays_min(type_t *a_arr, const int a_len, type_t *b_arr, const int b_len)
+int arrays_min(int *a_arr, const int a_len, int *b_arr, const int b_len)
 {
     if (a_len == 0 && b_len != 0)
     {
@@ -266,7 +265,7 @@ void sparse_sum(const sparse_t sparse_a, const sparse_t sparse_b,
 
     for (int col = 0; col < sparse_a.cols_amount; ++col)
     {
-        type_t *a_arr, *b_arr;
+        int *a_arr, *b_arr;
         int a_ind = 0, b_ind = 0;
         int cur_a, cur_b;
 
@@ -283,8 +282,8 @@ void sparse_sum(const sparse_t sparse_a, const sparse_t sparse_b,
 
         int a_column = cur_a - *(sparse_a.col_entry + col);
         int b_column = cur_b - *(sparse_b.col_entry + col);
-        a_arr = (type_t *)calloc(a_column, sizeof(type_t));
-        b_arr = (type_t *)calloc(b_column, sizeof(type_t));
+        a_arr = (int *)calloc(a_column, sizeof(int));
+        b_arr = (int *)calloc(b_column, sizeof(int));
 
         for (int a_col = *(sparse_a.col_entry + col); a_col < cur_a; ++a_col)
         {
@@ -473,11 +472,11 @@ Welcomming print with available features.
 */
 void welcome()
 {
-    printf("%s","Данная программа позволяет сравнить время, затраченное на сложение \n"
+    printf("Данная программа позволяет сравнить время, затраченное на сложение \n"
            "двух разреженных матриц, хранимых в стандартном виде и в разреженном \n"
-           "столбцовом видах.\n\n" ;
-    printf("%s","Выберите действие из списка, введя соответствуюший номер:\n" );
-    printf("%s","1. Ввести матрицы вручную (в формате Matrix Market).\n"
+           "столбцовом видах.\n\n" );
+    printf("Выберите действие из списка, введя соответствуюший номер:\n" );
+    printf("1. Ввести матрицы вручную.\n"
            "2. Сгенерировать матрицы случайно (по проценту заполненности).\n"
            "3. Сложить матрицы, используя стандартный способ хранения.\n"
            "4. Сложить матрицы, используя разреженный столбцовый вид хранения.\n"
@@ -508,7 +507,7 @@ Input data:
 Output data:
 * Return code - OK, INVALID_INT_INPUT_ERROR or IN_BETWEEN_ERROR.
 */
-int input_interval(type_t *const num, const type_t left, const type_t right)
+int input_interval(int *const num, const int left, const int right)
 {
     if (scanf(type_spec, num) != GOT_ARG)
     {
@@ -566,7 +565,7 @@ Output data:
 */
 int screate(sparse_t *const sparse, const int dots, const int cols)
 {
-    sparse->elems = (type_t *)malloc(dots * sizeof(type_t));
+    sparse->elems = (int *)malloc(dots * sizeof(int));
     sparse->row_entry = (int *)malloc(dots * sizeof(int));
     sparse->col_entry = (int *)malloc(cols * sizeof(int));
     sparse->elems_amount = dots;
@@ -693,19 +692,19 @@ int soutput(const sparse_t sparse)
     {
         printf(out_spec, *(sparse.elems + el));
     }
-    printf("%s", "\n");
+    printf( "\n");
 
     for (int el = 0; el < sparse.elems_amount; ++el)
     {
         printf("%5d ", *(sparse.row_entry + el));
     }
-    printf("%s", "\n");
+    printf( "\n");
 
     for (int el = 0; el < sparse.cols_amount; ++el)
     {
         printf("%5d ", *(sparse.col_entry + el));
     }
-    printf("%s", "\n");
+    printf( "\n");
 
     return OK;
 }
@@ -737,7 +736,7 @@ Output data:
 */
 int create(matrix_t *const matrix)
 {
-    matrix->matrix = (type_t **)malloc(matrix->rows * sizeof(type_t *));
+    matrix->matrix = (int **)malloc(matrix->rows * sizeof(int *));
 
     if (!matrix->matrix)
     {
@@ -746,7 +745,7 @@ int create(matrix_t *const matrix)
 
     for (int row = 0; row < matrix->rows; ++row)
     {
-        *(matrix->matrix + row) = (type_t *)malloc(matrix->columns * sizeof(type_t));
+        *(matrix->matrix + row) = (int *)malloc(matrix->columns * sizeof(int));
 
         if (!*(matrix->matrix + row))
         {
@@ -860,7 +859,7 @@ int output(const matrix_t *const matrix)
             printf(out_spec, *(*(matrix->matrix + row) + col));
         }
 
-        printf("%s", "\n");
+        printf( "\n");
     }
 
     return OK;
@@ -868,7 +867,7 @@ int output(const matrix_t *const matrix)
 
 int main()
 {
-    system("clear");
+    //system("clear");
     welcome();
 
     matrix_t matrix_a, matrix_b, matrix_res;
@@ -1087,13 +1086,13 @@ int main()
                        "столбцовым методом = ",
                        ticks);
 
-                int mat_size = sizeof(type_t **) + 
-                               sizeof(type_t *) * matrix_res.rows + 
-                               sizeof(type_t) * matrix_res.rows * matrix_res.columns + 
+                int mat_size = sizeof(int **) + 
+                               sizeof(int *) * matrix_res.rows + 
+                               sizeof(int) * matrix_res.rows * matrix_res.columns + 
                                2 * sizeof(int);
-                int sparse_size = sizeof(type_t *) * 3 +
-                                  sizeof(type_t) * sparse_res.elems_amount * 2 + 
-                                  sizeof(type_t) * sparse_res.cols_amount +
+                int sparse_size = sizeof(int *) * 3 +
+                                  sizeof(int) * sparse_res.elems_amount * 2 + 
+                                  sizeof(int) * sparse_res.cols_amount +
                                   2 * sizeof(int);
 
                 printf("~%d~%d\n", sparse_size, mat_size);

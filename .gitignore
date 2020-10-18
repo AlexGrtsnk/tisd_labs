@@ -7,4 +7,5 @@
 *.vscode
 /tisd_03/main
 /tisd_03/main.dSYM
+/tisd_03/~$report.docx
 *.txt
