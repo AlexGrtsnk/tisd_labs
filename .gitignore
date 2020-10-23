@@ -1,0 +1,15 @@
+*.exe
+*.o
+*.gcda
+*.c.gcov
+*.gcno
+*.DS_Store
+*.vscode
+/tisd_04/main
+/tisd_04/main.dSYM
+/tisd_04/main_mas
+/tisd_04/main_mas.dSYM
+/tisd_04/main_stack
+/tisd_04/main_stack.dSYM
+/tisd_04/~$report.docx
+*.txt
