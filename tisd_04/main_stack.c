@@ -50,7 +50,7 @@ T pop2(Node_t **head) {
     out = *head;
     *head = (*head)->next;
     value = out->value;
-    free(out);
+    //free(out);
     return value;
 }
 
@@ -82,16 +82,14 @@ size_t getSize_list(const Node_t *head) {
 int main(void) {
     long i;
     Node_t *head = NULL;
-    for (i = 0; i < 300; i++) {
+    for (i = 0; i < 10; i++) {
         push_1(&head, i);
     }
     printStack_list(head);
     printf("size = %d\n", getSize_list(head));
-    while (head) {
-        printf("размер нашей памяти %lu\n", sizeof(head)*getSize_list(head));
-        printf("%d ", peek_list(head));
-        printf("%d ", pop2(&head));
-    }
+    pop2(&head);
+    printf("ывфывфыв\n");
+    printStack_list(head);
     //free(head);
     return EXIT_SUCCESS;
 }

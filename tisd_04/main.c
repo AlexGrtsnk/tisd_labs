@@ -19,10 +19,39 @@ typedef struct Node_tag {
     struct Node_tag *next;
 } Node_t;
 
+typedef struct
+{
+    size_t *arr;
+    int capacity;
+    int ind;
+} arr_t;
+
+typedef struct arr_svob {
+    size_t *data;
+    size_t size_svob;
+} arr_svob;
+
+int kol_svob = 0;
+
+uint64_t tick(void)
+{
+    uint32_t high, low;
+    __asm__ __volatile__(
+        "rdtsc\n"
+        "movl %%edx, %0\n"
+        "movl %%eax, %1\n"
+        : "=r"(high), "=r"(low)::"%rax", "%rbx", "%rcx", "%rdx");
+
+    uint64_t ticks = ((uint64_t)high << 32) | low;
+
+    return ticks;
+}
+
 
 // push кладёт элемент на стек
 int push(Stack_t *stack, const T value) {
-    if (stack->size >= STACK_MAX_SIZE) {
+    if (stack->size >= STACK_MAX_SIZE)
+    {
         printf("Ошибка! Переполнение стека!\n");
         return EXIT_FAILURE;
         exit(STACK_OVERFLOW);
@@ -34,15 +63,15 @@ int push(Stack_t *stack, const T value) {
 
 // pop - возвращает элмент с вершины и переходит к следующему
 T pop(Stack_t *stack) {
-    int *p = &(stack->data[stack->size]);
     if (stack->size == 0) {
         printf("Ошибка! В стеке не осталось элементов");
         exit(STACK_UNDERFLOW);
     }
     stack->size--;
-    printf("память %p\n", p);
     return stack->data[stack->size];
 }
+
+
 
 // peek - возвращет текущий элемент с вершины
 T peek(const Stack_t *stack) {
@@ -83,6 +112,7 @@ int push_1(Node_t **head, T value) {
     tmp->next = *head;
     tmp->value = value;
     *head = tmp;
+    //*(head + 1) = NULL;
     return 0;
     //free(tmp);
 }
@@ -101,9 +131,9 @@ Node_t* pop1(Node_t **head) {
 }
 
 
-T pop2(Node_t **head) {
-    int *p = &((*head)->value);
-    printf("память %p\n", p);
+T pop2_nomas(Node_t **head) {
+    //int *p = &((*head)->value);
+    //printf("память %p\n", p);
     Node_t *out;
     T value;
     if (*head == NULL) {
@@ -112,7 +142,23 @@ T pop2(Node_t **head) {
     out = *head;
     *head = (*head)->next;
     value = out->value;
-    free(out);
+    //free(out);
+    return value;
+}
+
+T pop2(Node_t **head, arr_svob *mas_free) {
+    kol_svob++;
+    mas_free->data[kol_svob] = &((*head)->value);
+    //printf("память %p\n", p);
+    Node_t *out;
+    T value;
+    if (*head == NULL) {
+        exit(STACK_UNDERFLOW);
+    }
+    out = *head;
+    *head = (*head)->next;
+    value = out->value;
+    //free(out);
     return value;
 }
 
@@ -129,6 +175,7 @@ void printStack_list(const Node_t* head) {
         printf("%d ", head->value);
         head = head->next;
     }
+    printf("\n");
 }
 
 size_t getSize_list(const Node_t *head) {
@@ -148,13 +195,13 @@ int menu_select(void)
     printf("1. МАССИВ: Ввести элементы стека\n");
     printf("2. МАССИВ: Добавить элемент в стек\n");
     printf("3. МАССИВ: Удалить элемент из стека\n");
-    printf("4. МАССИВ: Отсортировать стек с использованием другого(массив)\n");
+    printf("4. МАССИВ: Вывести убывающие подпоследовательности в обратном порядке(массив)\n");
     printf("5. МАССИВ: Вывести текущий стек\n\n");
     printf("6. СПИСОК: Ввести элементы стека\n");
     printf("7. СПИСОК: Добавить элемент в стек\n");
     printf("8. СПИСОК: Удалить элемент из стека\n");
     printf("9. СПИСОК: Вывести массив освободившихся адресов\n");
-    printf("10. СПИСОК: Отсортировать стек с использованием другого(список)\n");
+    printf("10. СПИСОК: Вывести убывающие подпоследовательности в обратном порядке(список)\n");
     printf("11. СПИСОК: Вывести элменты стека\n");
     printf("\n0. Выход\n");
 
@@ -174,6 +221,98 @@ int menu_select(void)
 }
 
 
+
+int decsubseq_arr(Stack_t *stack_copy)
+{
+    int i;
+    int el = pop(stack_copy);
+    int count = 0;
+
+    while (stack_copy->size > 0)
+    {
+        int arr[stack_copy->size];
+        int new_el = pop(stack_copy);
+
+        arr[0] = el;
+        int i = 1;
+
+        while (new_el > el)
+        {
+            arr[i] = new_el;
+            i++;
+            el = new_el;
+            if (stack_copy->size > 0)
+            {
+                new_el = pop(stack_copy);
+            }
+        }
+        el = new_el;
+
+        if (i != 1)
+        {
+            count++;
+
+            for (int j = 0; j < i; ++j)
+            {
+                printf("%d ", arr[j]);
+            }
+            printf("\n");
+        }
+    }
+
+    return count;
+}
+
+int is_emptyl(Node_t *root)
+{
+    return !root;
+}
+
+
+int decsubseq_list(Node_t **root)
+{
+    int el = pop2_nomas(root);
+    int count = 0;
+
+    while (!is_emptyl(*root))
+    {
+        int arr[1000];
+        int new_el = pop2_nomas(root);
+
+        arr[0] = el;
+        int i = 1;
+
+        while (new_el > el)
+        {
+            arr[i] = new_el;
+            i++;
+            el = new_el;
+            if (!is_emptyl(*root))
+            {
+                new_el = pop2_nomas(root);
+            }
+        }
+        el = new_el;
+
+        if (i != 1)
+        {
+            count++;
+
+            for (int j = 0; j < i; ++j)
+            {
+                printf("%d ", arr[j]);
+            }
+            printf("\n");
+        }
+
+        //free(arr);
+    }
+
+    return count;
+}
+
+
+
 int main(void)
 {
     //setlocale (LC_CTYPE, "Russian");
@@ -184,9 +323,17 @@ int main(void)
     int list_kol;
     int trig = 0;
     int trig_1 = 0;
-    init_list();
-    init_key_list();
+    int stack_status;
+    unsigned long long start, end;
+    Stack_t stack;
+    Stack_t stack_copy;
+    Node_t *head = NULL;
+    Node_t *head_copy = NULL;
+    arr_svob svob_free;
     int mas_kol;
+    stack.size = 0;
+    stack_copy.size = 0;
+    svob_free.data = malloc(100000);
     for(;;)
     {
         choice = menu_select();
@@ -199,7 +346,7 @@ int main(void)
                 return EXIT_FAILURE;
             }
             printf("Введите количество элементов стека: ");
-            if (scanf("%d", &mas_kol))
+            if (scanf("%d", &mas_kol) != 1)
             {
                 printf("Вы ввели неверное значение\n");
                 return EXIT_FAILURE;
@@ -211,7 +358,6 @@ int main(void)
                 return EXIT_FAILURE;
             }
             trig = 1;
-            Stack_t stack;
             printf("Введите элементы стека, каждый с новой строки\n");
             for (i = 0; i < mas_kol; i++)
             {
@@ -221,10 +367,11 @@ int main(void)
                     return EXIT_FAILURE;
                 }
                 push(&stack, x);
+                push(&stack_copy, x);
             }
             break;
         case 2:
-            printf("Введите элмент, который хотите добавить: ");
+            printf("Введите элемент, который хотите добавить: ");
             if (scanf("%d", &x) != 1)
             {
                 printf("Вы ввели неверное значение\n");
@@ -232,23 +379,28 @@ int main(void)
             }
             if(push(&stack, x))
                 return EXIT_FAILURE;
+            push(&stack_copy, x);
             printf("Элемент успешно добавлен\n");
         	//print_list(&stack, x);
             break;
         case 3: 
         	if (pop(&stack))
                 return EXIT_FAILURE;
+            pop(&stack_copy);
             printf("Элемент успешно удален\n");
             break;
         case 4:
-            init_list();
-            printf("1\n");
-            fscan_list();
-            printf("2\n");
-            init_key_list();
-            printf("3\n");
-           	scan_key_list();
-           	printf("4\n");
+            printf("Последовательности: ");
+            start = tick();
+            stack_status = decsubseq_arr(&stack_copy);
+            end = tick();
+            for (i = 0; i <stack.size; i++)
+            {
+                stack_copy.data[i] = stack.data[i];
+            }
+            if (!stack_status)
+                printf("Нет таких последовательностей\n");
+            printf("Время обработки: %llu\n", end - start);
             break;
         case 5:
             printf("Размер и сами элементы стека\n");
@@ -261,15 +413,15 @@ int main(void)
                 return EXIT_FAILURE;
             }
             printf("Введите количество элементов стека: ");
-            if (scanf("%d", &list_kol))
+            if (scanf("%d", &list_kol) != 1)
             {
                 printf("Вы ввели неверное значение\n");
                 return EXIT_FAILURE;
             }
             printf("\n");
             trig_1 = 1;
-            Node_t *head = NULL;
             printf("Введите элементы стека, каждый с новой строки\n");
+            //printStack_list(head);
             for (i = 0; i < list_kol; i++)
             {
                 if(scanf("%d", &x) != 1)
@@ -278,10 +430,13 @@ int main(void)
                     return EXIT_FAILURE;
                 }
                 push_1(&head, x);
+                push_1(&head_copy, x);
+                //printStack_list(head);
             }
+            //printStack_list(head);
             break;
         case 7: 
-            printf("Введите элмент, который хотите добавить: ");
+            printf("Введите элемент, который хотите добавить: ");
             if (scanf("%d", &x) != 1)
             {
                 printf("Вы ввели неверное значение\n");
@@ -289,18 +444,39 @@ int main(void)
             }
             if(push_1(&head, x))
                 return EXIT_FAILURE;
+            push_1(&head_copy, x);
             printf("Элемент успешно добавлен\n");
             break;
         case 8: 
-        	if (pop2(&stack))
-                return EXIT_FAILURE;
+        	pop2(&head, &svob_free);
+            pop2_nomas(&head_copy);
             printf("Элемент успешно удален\n");
             break;
-        case 9: 
-        	check_ef();
+        case 9:
+            printf("Массив освободившихся адресов: \n");
+            for (i = 0; i < kol_svob; i++)
+                printf("%p\n", &(svob_free.data[i]));
             break;
-        case 10: 
-        	check_sort();
+        case 10:
+            printf("Последовательности: ");
+            start = tick();
+            stack_status = decsubseq_list(&head_copy);
+            end = tick();
+            head_copy = NULL;
+            i = 0;
+            //head_copy->next = 0;
+            /*
+            while(head_copy->next != NULL)
+            {
+                push_1(&head_copy, ( ((head->next)+i)->value) );
+                i++;
+            }
+            */
+            i = 0;
+            //push_1(&head_copy, (head+1)->value);
+            if (!stack_status)
+                printf("Нет таких последовательностей\n");
+            printf("Время обработки: %llu\n", end - start);
             break;
         case 11:
             printf("Размер и сами элементы стека\n");
