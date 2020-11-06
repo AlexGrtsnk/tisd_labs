@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define STACK_MAX_SIZE 20
+#include <inttypes.h>
+#include <time.h>
+#define STACK_MAX_SIZE 2000
 
 #define STACK_OVERFLOW  -100
 #define STACK_UNDERFLOW -101
@@ -64,10 +66,11 @@ int push(Stack_t *stack, const T value) {
 // pop - возвращает элмент с вершины и переходит к следующему
 T pop(Stack_t *stack) {
     if (stack->size == 0) {
-        printf("Ошибка! В стеке не осталось элементов");
+        printf("Ошибка! В стеке не осталось элементов\n");
         exit(STACK_UNDERFLOW);
     }
     stack->size--;
+    //printf("%d", stack->data[stack->size]);
     return stack->data[stack->size];
 }
 
@@ -153,6 +156,7 @@ T pop2(Node_t **head, arr_svob *mas_free) {
     Node_t *out;
     T value;
     if (*head == NULL) {
+        printf("Ошибка! В стеке не осталось элементов");
         exit(STACK_UNDERFLOW);
     }
     out = *head;
@@ -202,7 +206,7 @@ int menu_select(void)
     printf("8. СПИСОК: Удалить элемент из стека\n");
     printf("9. СПИСОК: Вывести массив освободившихся адресов\n");
     printf("10. СПИСОК: Вывести убывающие подпоследовательности в обратном порядке(список)\n");
-    printf("11. СПИСОК: Вывести элменты стека\n");
+    printf("11. СПИСОК: Вывести элементы стека\n");
     printf("\n0. Выход\n");
 
     do {
@@ -276,7 +280,7 @@ int decsubseq_list(Node_t **root)
 
     while (!is_emptyl(*root))
     {
-        int arr[1000];
+        int arr[getSize_list(*root) + 1];
         int new_el = pop2_nomas(root);
 
         arr[0] = el;
@@ -324,6 +328,8 @@ int main(void)
     int trig = 0;
     int trig_1 = 0;
     int stack_status;
+    int trig_vvod_mas = 0;
+    int trig_vvod_list = 0;
     unsigned long long start, end;
     Stack_t stack;
     Stack_t stack_copy;
@@ -358,17 +364,42 @@ int main(void)
                 return EXIT_FAILURE;
             }
             trig = 1;
-            printf("Введите элементы стека, каждый с новой строки\n");
-            for (i = 0; i < mas_kol; i++)
+            printf ("Если хотите вести элементы сами, введите 0\nЕсли хотите, чтобы стек был заполнен случайными элементами, введите 1: ");
+            if (scanf("%d", &trig_vvod_mas) != 1)
             {
-                if (scanf("%d", &x) != 1)
-                {
-                    printf("Вы ввели неверное значение\n");
-                    return EXIT_FAILURE;
-                }
-                push(&stack, x);
-                push(&stack_copy, x);
+                printf("Вы ввели неверное значение!\n");
+                return EXIT_FAILURE;
             }
+            if (trig_vvod_mas != 0 && trig_vvod_mas != 1)
+            {
+                printf("Вы ввели неверное значение\n");
+                return EXIT_FAILURE;
+            }
+            if (trig_vvod_mas == 0)
+            {
+                printf("Введите элементы стека, каждый с новой строки\n");
+                for (i = 0; i < mas_kol; i++)
+                {
+                    if (scanf("%d", &x) != 1)
+                    {
+                        printf("Вы ввели неверное значение\n");
+                        return EXIT_FAILURE;
+                    }
+                    push(&stack, x);
+                    push(&stack_copy, x);
+                }
+            }
+            else
+            {
+                srand(time(NULL)); 
+                for (i = 0; i < mas_kol; i++)
+                {
+                    x = rand()%(0 - 100 + 1) + 100;
+                    push(&stack, x);
+                    push(&stack_copy, x);
+                }
+            }
+            printf("Стек успешно создан\n");
             break;
         case 2:
             printf("Введите элемент, который хотите добавить: ");
@@ -394,9 +425,11 @@ int main(void)
             start = tick();
             stack_status = decsubseq_arr(&stack_copy);
             end = tick();
+            //head_copy = NULL;
             for (i = 0; i <stack.size; i++)
             {
-                stack_copy.data[i] = stack.data[i];
+                push(&stack_copy, stack.data[i]);
+                //stack_copy.data[i] = stack.data[i];
             }
             if (!stack_status)
                 printf("Нет таких последовательностей\n");
@@ -422,17 +455,42 @@ int main(void)
             trig_1 = 1;
             printf("Введите элементы стека, каждый с новой строки\n");
             //printStack_list(head);
-            for (i = 0; i < list_kol; i++)
+                        printf ("Если хотите вести элементы сами, введите 0\nЕсли хотите, чтобы стек был заполнен случайными элементами, введите 1: ");
+            if (scanf("%d", &trig_vvod_list) != 1)
             {
-                if(scanf("%d", &x) != 1)
-                {
-                    printf("Вы ввели неверное значение\n");
-                    return EXIT_FAILURE;
-                }
-                push_1(&head, x);
-                push_1(&head_copy, x);
-                //printStack_list(head);
+                printf("Вы ввели неверное значение!\n");
+                return EXIT_FAILURE;
             }
+            if (trig_vvod_list != 0 && trig_vvod_list != 1)
+            {
+                printf("Вы ввели неверное значение\n");
+                return EXIT_FAILURE;
+            }
+            if (trig_vvod_list == 0)
+            {
+                for (i = 0; i < list_kol; i++)
+                {
+                    if(scanf("%d", &x) != 1)
+                    {
+                        printf("Вы ввели неверное значение\n");
+                        return EXIT_FAILURE;
+                    }
+                    push_1(&head, x);
+                    push_1(&head_copy, x);
+                    //printStack_list(head);
+                }
+            }
+            else
+            {
+                srand(time(NULL)); 
+                for (i = 0; i < list_kol; i++)
+                {
+                    x = rand()%(0 - 100 + 1) + 100;
+                    push_1(&head, x);
+                    push_1(&head_copy, x);
+                }
+            }
+            
             //printStack_list(head);
             break;
         case 7: 
@@ -462,24 +520,13 @@ int main(void)
             start = tick();
             stack_status = decsubseq_list(&head_copy);
             end = tick();
-            head_copy = NULL;
-            i = 0;
-            //head_copy->next = 0;
-            /*
-            while(head_copy->next != NULL)
-            {
-                push_1(&head_copy, ( ((head->next)+i)->value) );
-                i++;
-            }
-            */
-            i = 0;
-            //push_1(&head_copy, (head+1)->value);
+            head_copy = head;
             if (!stack_status)
                 printf("Нет таких последовательностей\n");
             printf("Время обработки: %llu\n", end - start);
             break;
         case 11:
-            printf("Размер и сами элементы стека\n");
+            printf("Элементы стека\n");
             printStack_list(head);
             break;
         case 0: 
