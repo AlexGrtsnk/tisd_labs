@@ -1,8 +1,9 @@
+//copy from macos
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <inttypes.h>
 #include <time.h>
-#define STACK_MAX_SIZE 2000
+#define STACK_MAX_SIZE 202
 
 #define STACK_OVERFLOW  -100
 #define STACK_UNDERFLOW -101
@@ -74,6 +75,35 @@ T pop(Stack_t *stack) {
     return stack->data[stack->size];
 }
 
+void pop_back(Node_t **head)
+{
+     if (!head)
+        return;
+    if ((*head) == NULL)
+        return;
+    Node_t *temp;
+    //void *p = (*head)->data;
+    temp = (*head)->next;
+    free(*head);
+    (*head) = temp;
+    //return p;
+}
+
+void pop_back_1(Node_t **head, arr_svob *mas_free)
+{
+    kol_svob++;
+    mas_free->data[kol_svob] = &((*head)->value);
+     if (!head)
+        return;
+    if ((*head) == NULL)
+        return;
+    Node_t *temp;
+    //void *p = (*head)->data;
+    temp = (*head)->next;
+    free(*head);
+    (*head) = temp;
+    //return p;
+}
 
 
 // peek - возвращет текущий элемент с вершины
@@ -217,7 +247,7 @@ int menu_select(void)
             scanf("%*s");
             c = -1;
         }
-    } while (c < 0 || c > 11);
+    } while (c < 0 || c > 12);
 
     printf("\n");
 
@@ -251,7 +281,6 @@ int decsubseq_arr(Stack_t *stack_copy)
             }
         }
         el = new_el;
-
         if (i != 1)
         {
             count++;
@@ -315,6 +344,22 @@ int decsubseq_list(Node_t **root)
     return count;
 }
 
+void variable_free(Node_t *vrb)
+{
+    free(vrb);
+}
+
+void list_free_all(Node_t *head)
+{
+    Node_t *next;
+
+    for (; head; head = next)
+    {
+        next = head->next;
+        variable_free(head);
+    }
+}
+
 
 
 int main(void)
@@ -337,6 +382,11 @@ int main(void)
     Node_t *head_copy = NULL;
     arr_svob svob_free;
     int mas_kol;
+    Stack_t stack1, stack2, stack3;
+    Node_t *head1 = NULL;
+    Node_t *head2 = NULL;
+    Node_t *head3 = NULL;
+
     stack.size = 0;
     stack_copy.size = 0;
     svob_free.data = malloc(100000);
@@ -415,8 +465,8 @@ int main(void)
         	//print_list(&stack, x);
             break;
         case 3: 
-        	if (pop(&stack))
-                return EXIT_FAILURE;
+        	pop(&stack);
+                //return EXIT_FAILURE;
             pop(&stack_copy);
             printf("Элемент успешно удален\n");
             break;
@@ -433,11 +483,12 @@ int main(void)
             }
             if (!stack_status)
                 printf("Нет таких последовательностей\n");
-            printf("Время обработки: %llu\n", end - start);
+            printf("Время добавления: %llu\n", end - start);
             break;
         case 5:
             printf("Размер и сами элементы стека\n");
             printStack(&stack, printStackValue);
+            printf("Объём занимаемой памяти стеком на основе массива, %lu\n\n", sizeof(Stack_t));
             break;
         case 6: 
             if (trig_1 == 1)
@@ -511,6 +562,11 @@ int main(void)
             printf("Элемент успешно удален\n");
             break;
         case 9:
+            if (kol_svob == 0)
+            {
+                printf("Массив пуст!\n\n");
+            break;
+            }
             printf("Массив освободившихся адресов: \n");
             for (i = 0; i < kol_svob; i++)
                 printf("%p\n", &(svob_free.data[i]));
@@ -523,11 +579,84 @@ int main(void)
             head_copy = head;
             if (!stack_status)
                 printf("Нет таких последовательностей\n");
-            printf("Время обработки: %llu\n", end - start);
+            printf("Время добавления: %llu\n", end - start);
             break;
         case 11:
             printf("Элементы стека\n");
             printStack_list(head);
+            printf("Объём занимаемой памяти стеком на основе списка, %lu\n\n", sizeof(Node_t)*getSize_list(head));
+            break;
+        case 12:
+            //Stack_t stack1;
+            stack1.size = 0;
+            stack2.size = 0;
+            stack3.size = 0;
+            start = tick();
+            for (i = 0; i < 10; i++)
+                push(&stack1, i);
+            end = tick();
+            printf("Время добавления 10 массив память : %llu %zu\n", end - start, sizeof(stack1));
+            start = tick();
+            for (i = 0; i < 100; i++)
+                push(&stack2, i);
+            end = tick();
+            printf("Время добавления 100 массив: %llu %zu\n", end - start, sizeof(int)*200);
+            start = tick();
+            for (i = 0; i < 1000; i++)
+                push(&stack3, i);
+            end = tick();
+            printf("Время добавления 1000 массив: %llu %zu\n", end - start, sizeof(stack3));
+/*
+            start = tick();
+            for (i = 0; i < 10; i++)
+                pop(&stack1);
+            end = tick();
+            printf("Время удаления 10 массив: %llu\n", end - start);
+            start = tick();
+            for (i = 0; i < 100; i++)
+                pop(&stack2);
+            end = tick();
+            printf("Время удаления 100 массив: %llu\n", end - start);
+            start = tick();
+            for (i = 0; i < 1000; i++)
+                pop(&stack3);
+            end = tick();
+            printf("Время удаления 1000 массив: %llu\n", end - start);
+
+*/
+            start = tick();
+            for (i = 0; i < 51; i++)
+                push_1(&head1, i);
+            end = tick();
+            printf("Время добавления 55 список, память: %llu %zu\n", end - start, sizeof(Node_t)*getSize_list(head1));
+            start = tick();
+            for (i = 0; i < 30; i++)
+                push_1(&head2, i);
+            end = tick();
+            printf("Время добавления 100 список, память: %llu %zu\n", end - start, sizeof(Node_t)*getSize_list(head2));
+            start = tick();
+            for (i = 0; i < 1000; i++)
+                push_1(&head3, i);
+            end = tick();
+            printf("Время добавления 1000 список, память: %llu %zu\n", end - start, sizeof(Node_t)*getSize_list(head3));
+
+            start = tick();
+            for (i = 0; i < 10; i++)
+                pop_back(&head1);
+            end = tick();
+            printf("Время удаления 10 список: %llu\n", end - start);
+            start = tick();
+            for (i = 0; i < 100; i++)
+                pop_back(&head2);
+            end = tick();
+            printf("Время удаления 100 список: %llu\n", end - start);
+            start = tick();
+            for (i = 0; i < 1000; i++)
+                pop_back(&head3);
+            end = tick();
+            printf("Время удаления 1000 список: %llu\n", end - start);
+
+
             break;
         case 0: 
         	return 0;
